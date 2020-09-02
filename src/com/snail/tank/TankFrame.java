@@ -15,7 +15,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,9 +22,11 @@ import java.util.List;
  */
 public class TankFrame extends Frame {
 
-  Tank myTank = new Tank(100, 100, Dir.DOWN, this);
-  List<Bullet> bullets = new ArrayList<Bullet>();
-
+  Tank myTank = new Tank(200, 200, Dir.DOWN, Group.GOOD,this);
+  List<Bullet> bullets = new ArrayList<>();
+  List<Tank> tanks = new ArrayList<>();
+  List<Explode> explodes = new ArrayList<>();
+  Explode e = new Explode(100,100, this);
   static final int GAME_WIDTH = 800, GAME_HEIGHT = 600;
 
   public TankFrame() {
@@ -68,13 +69,34 @@ public class TankFrame extends Frame {
     Color c = g.getColor();
     g.setColor(Color.WHITE);
     g.drawString("子弹的数量：" + bullets.size(), 10, 60);
+    g.drawString("坦克的数量：" + tanks.size(), 10, 80);
     g.setColor(c);
 
     myTank.paint(g);
+    // 画地方坦克
+    for (int i = 0; i < tanks.size(); i++) {
+      tanks.get(i).paint(g);
+    }
+
     // 为了集合元素删除，此处不能用增强for循环
     for (int i = 0; i < bullets.size(); i++) {
       bullets.get(i).paint(g);
     }
+
+    // 碰撞检测，判断子弹和坦克是否相交
+    for (int i = 0; i < bullets.size(); i++) {
+      for (int j = 0; j < tanks.size(); j++) {
+        bullets.get(i).collideWith(tanks.get(j));
+      }
+    }
+
+    for (int i = 0; i < explodes.size(); i++) {
+      explodes.get(i).paint(g);
+      if (!explodes.get(i).isLiving()) {
+        break;
+      }
+    }
+    // e.paint(g);
   }
 
   class MyKeyListener extends KeyAdapter {

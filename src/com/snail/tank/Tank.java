@@ -10,6 +10,7 @@
 package com.snail.tank;
 
 import java.awt.*;
+import java.util.Random;
 
 /**
  * 坦克封装类
@@ -19,20 +20,30 @@ import java.awt.*;
 public class Tank {
   // 起始位置
   private int x, y;
+  // 坦克宽度高度
+  public static final int WIDTH = ResourceMgr.tankD.getWidth();
+  public static final int HEIGHT = ResourceMgr.tankD.getHeight();
+
+  private Random random = new Random();
   // 方向
   private Dir dir = Dir.DOWN;
   // 速度
-  private static final int SPEED = 7;
+  private static final int SPEED = 5;
   // 移动或静止
   private boolean moving = false;
+  // 死活
+  private boolean living = true;
+
+  private Group group = Group.BAD;
 
   // 让Tank持有TankFrame 的引用
   private TankFrame tf;
 
-  public Tank(int x, int y, Dir dir, TankFrame tf) {
+  public Tank(int x, int y, Dir dir, Group group, TankFrame tf) {
     this.x = x;
     this.y = y;
     this.dir = dir;
+    this.group = group;
     this.tf = tf;
   }
 
@@ -57,6 +68,11 @@ public class Tank {
    * @param g
    */
   public void paint(Graphics g) {
+    if (!living) {
+      // 注意，此处需要去除tank，否则依然会有内存泄漏问题
+      tf.tanks.remove(this);
+    }
+
     switch (this.dir) {
       case LEFT:
         g.drawImage(ResourceMgr.tankL, x, y, null);
@@ -95,9 +111,42 @@ public class Tank {
       default:
         break;
     }
+
+    // 地方坦克，随机开火
+    if (random.nextInt(10) > 8) this.fire();
   }
 
   public void fire() {
-    tf.bullets.add(new Bullet(this.x, this.y, this.dir, tf));
+    int x_index = this.x + Tank.WIDTH / 2 - Bullet.WIDTH / 2;
+    int y_index = this.y + Tank.HEIGHT / 2 - Bullet.HEIGHT / 2;
+    tf.bullets.add(new Bullet(x_index, y_index, this.dir, this.group, tf));
+  }
+
+  public int getX() {
+    return x;
+  }
+
+  public void setX(int x) {
+    this.x = x;
+  }
+
+  public int getY() {
+    return y;
+  }
+
+  public void setY(int y) {
+    this.y = y;
+  }
+
+  public void die() {
+    this.living = false;
+  }
+
+  public Group getGroup() {
+    return group;
+  }
+
+  public void setGroup(Group group) {
+    this.group = group;
   }
 }
