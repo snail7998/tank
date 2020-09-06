@@ -22,6 +22,9 @@ public class Bullet {
   public static final int WIDTH = ResourceMgr.bulletD.getWidth();
   public static final int HEIGHT = ResourceMgr.bulletD.getHeight();
 
+  // 碰撞检测使用
+  Rectangle rect = new Rectangle();
+
   // 位置
   private int x, y;
   // 方向
@@ -39,6 +42,11 @@ public class Bullet {
     this.dir = dir;
     this.group = group;
     this.tf = tf;
+
+    rect.x = this.x;
+    rect.y = this.y;
+    rect.width = WIDTH;
+    rect.height = HEIGHT;
   }
 
   public void paint(Graphics g) {
@@ -83,6 +91,10 @@ public class Bullet {
       default:
         break;
     }
+    // update rect
+    rect.x = this.x;
+    rect.y = this.y;
+
     // 如果超出屏幕范围，子弹 live为 false
     if (x < 0 || y < 0 || x > TankFrame.GAME_WIDTH || y > TankFrame.GAME_HEIGHT) {
       living = false;
@@ -95,13 +107,12 @@ public class Bullet {
   public void collideWith(Tank tank) {
     // 如果子弹和坦克都是好的，即一波的，则不撞
     if (this.group == tank.getGroup()) return;
-    // TODO new Rectangle 太多，优化
-    Rectangle rect1 = new Rectangle(this.x, this.y, WIDTH, HEIGHT);
-    Rectangle rect2 = new Rectangle(tank.getX(), tank.getY(), Tank.WIDTH, Tank.HEIGHT);
-    if (rect1.intersects(rect2)) {
+    if (this.rect.intersects(tank.rect)) {
       tank.die();
       this.die();
-      tf.explodes.add(new Explode(tank.getX(),tank.getY(), tf));
+      int ex = tank.getX() + Tank.WIDTH / 2 - Bullet.WIDTH / 2;
+      int ey = tank.getY() + Tank.HEIGHT / 2 - Bullet.HEIGHT / 2;
+      tf.explodes.add(new Explode(ex, ey, tf));
     }
 
   }

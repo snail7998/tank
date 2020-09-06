@@ -24,7 +24,6 @@ public class Explode {
   // 当前画到爆炸的第几步，每paint一次 step 加1
   private int step = 0;
 
-  private boolean living = true;
   TankFrame tf;
 
   public Explode(int x, int y, TankFrame tf) {
@@ -38,16 +37,9 @@ public class Explode {
   public void paint(Graphics g) {
     g.drawImage(ResourceMgr.explodes[step++], x , y, null);
     if (step >= ResourceMgr.explodes.length) {
-      step = 0;
-      living = false;
+      // step = 0;
+      // living = false;
+      tf.explodes.remove(this);
     }
-  }
-
-  public boolean isLiving() {
-    return living;
-  }
-
-  public void setLiving(boolean living) {
-    this.living = living;
   }
 }

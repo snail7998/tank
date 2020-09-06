@@ -21,8 +21,11 @@ public class Tank {
   // 起始位置
   private int x, y;
   // 坦克宽度高度
-  public static final int WIDTH = ResourceMgr.tankD.getWidth();
-  public static final int HEIGHT = ResourceMgr.tankD.getHeight();
+  public static final int WIDTH = ResourceMgr.badTankD.getWidth();
+  public static final int HEIGHT = ResourceMgr.badTankD.getHeight();
+
+  // 碰撞检测使用
+  Rectangle rect = new Rectangle();
 
   private Random random = new Random();
   // 方向
@@ -30,7 +33,7 @@ public class Tank {
   // 速度
   private static final int SPEED = 5;
   // 移动或静止
-  private boolean moving = false;
+  private boolean moving = true;
   // 死活
   private boolean living = true;
 
@@ -45,6 +48,11 @@ public class Tank {
     this.dir = dir;
     this.group = group;
     this.tf = tf;
+
+    rect.x = this.x;
+    rect.y = this.y;
+    rect.width = WIDTH;
+    rect.height = HEIGHT;
   }
 
   public boolean isMoving() {
@@ -65,6 +73,7 @@ public class Tank {
 
   /**
    * TANK 自己画自己
+   *
    * @param g
    */
   public void paint(Graphics g) {
@@ -75,16 +84,16 @@ public class Tank {
 
     switch (this.dir) {
       case LEFT:
-        g.drawImage(ResourceMgr.tankL, x, y, null);
+        g.drawImage(this.group == Group.GOOD ? ResourceMgr.goodTankL : ResourceMgr.badTankL, x, y, null);
         break;
       case RIGHT:
-        g.drawImage(ResourceMgr.tankR, x, y, null);
+        g.drawImage(this.group == Group.GOOD ? ResourceMgr.goodTankR : ResourceMgr.badTankR, x, y, null);
         break;
       case UP:
-        g.drawImage(ResourceMgr.tankU, x, y, null);
+        g.drawImage(this.group == Group.GOOD ? ResourceMgr.goodTankU : ResourceMgr.badTankU, x, y, null);
         break;
       case DOWN:
-        g.drawImage(ResourceMgr.tankD, x, y, null);
+        g.drawImage(this.group == Group.GOOD ? ResourceMgr.goodTankD : ResourceMgr.badTankD, x, y, null);
         break;
       default:
         break;
@@ -93,7 +102,7 @@ public class Tank {
   }
 
   private void move() {
-    if(!moving) return;
+    if (!moving) return;
 
     switch (this.dir) {
       case LEFT:
@@ -112,8 +121,30 @@ public class Tank {
         break;
     }
 
-    // 地方坦克，随机开火
-    if (random.nextInt(10) > 8) this.fire();
+    // 敌方坦克，随机开火
+    if (this.group == Group.BAD && random.nextInt(100) > 95)
+      this.fire();
+    // 随机改变方向
+    if (this.group == Group.BAD && random.nextInt(100) > 95) {
+      randomDir();
+    }
+    // 边界检测
+    boundsCheck();
+    // update rect
+    rect.x = this.x;
+    rect.y = this.y;
+  }
+
+  private void boundsCheck() {
+    if (this.x < 2) x = 2;
+    // 菜单栏
+    if (this.y < 28) y = 28;
+    if (this.x > TankFrame.GAME_WIDTH - Tank.WIDTH) x = TankFrame.GAME_WIDTH - Tank.WIDTH - 2;
+    if (this.y > TankFrame.GAME_HEIGHT - Tank.HEIGHT) y = TankFrame.GAME_HEIGHT - Tank.HEIGHT - 2;
+  }
+
+  private void randomDir() {
+    this.dir = Dir.values()[random.nextInt(4)];
   }
 
   public void fire() {
