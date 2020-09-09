@@ -29,15 +29,18 @@ public class Tank {
 
   private Random random = new Random();
   // 方向
-  private Dir dir = Dir.DOWN;
+  public Dir dir = Dir.DOWN;
   // 速度
-  private static final int SPEED = 5;
+  private static final int SPEED = 7;
   // 移动或静止
   private boolean moving = true;
   // 死活
   private boolean living = true;
 
-  private Group group = Group.BAD;
+  public Group group = Group.BAD;
+
+  // 定义开火策略
+  FireStrategy fireStrategy;
 
   // 让Tank持有TankFrame 的引用
   private TankFrame tf;
@@ -53,6 +56,16 @@ public class Tank {
     rect.y = this.y;
     rect.width = WIDTH;
     rect.height = HEIGHT;
+
+    try {
+      if (group == Group.GOOD) {
+        fireStrategy = (FireStrategy) Class.forName(String.valueOf(PropertyMgr.get("goodTankfireStrategy"))).newInstance();
+      } else {
+        fireStrategy = (FireStrategy) Class.forName(String.valueOf(PropertyMgr.get("badTankfireStrategy"))).newInstance();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   public boolean isMoving() {
@@ -148,9 +161,7 @@ public class Tank {
   }
 
   public void fire() {
-    int x_index = this.x + Tank.WIDTH / 2 - Bullet.WIDTH / 2;
-    int y_index = this.y + Tank.HEIGHT / 2 - Bullet.HEIGHT / 2;
-    tf.bullets.add(new Bullet(x_index, y_index, this.dir, this.group, tf));
+    fireStrategy.fire(this, this.tf);
   }
 
   public int getX() {

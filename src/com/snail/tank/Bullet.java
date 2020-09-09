@@ -17,7 +17,7 @@ import java.awt.*;
 public class Bullet {
 
   // 速度
-  private static final int SPEED = 10;
+  private static final int SPEED = 15;
   // 子弹外形
   public static final int WIDTH = ResourceMgr.bulletD.getWidth();
   public static final int HEIGHT = ResourceMgr.bulletD.getHeight();
@@ -113,6 +113,7 @@ public class Bullet {
       int ex = tank.getX() + Tank.WIDTH / 2 - Bullet.WIDTH / 2;
       int ey = tank.getY() + Tank.HEIGHT / 2 - Bullet.HEIGHT / 2;
       tf.explodes.add(new Explode(ex, ey, tf));
+      new Thread(()->new Audio("audio/explode.wav").play()).start();
     }
 
   }

@@ -138,6 +138,7 @@ public class TankFrame extends Frame {
       if (!bL && !bU && !bR && !bD) {
         myTank.setMoving(false);
       } else {
+        new Thread(()->new Audio("audio/tank_move.wav").play()).start();
         myTank.setMoving(true);
         if (bL) myTank.setDir(Dir.LEFT);
         if (bR) myTank.setDir(Dir.RIGHT);
